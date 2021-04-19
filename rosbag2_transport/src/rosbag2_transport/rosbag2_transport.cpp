@@ -96,7 +96,12 @@ void Recorder::record(
     exec.add_node(recorder);
     auto spin_thread = std::thread(
       [&exec]() {
-        exec.spin();
+        using namespace std::chrono_literals;
+        const auto time_step = 1ms;
+        while (rclcpp::ok()) {
+          exec.spin_some();
+          std::this_thread::sleep_for(time_step);
+        }
       });
     auto exit = rcpputils::scope_exit(
       [&exec, &spin_thread]() {
